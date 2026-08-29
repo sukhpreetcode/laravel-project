@@ -5,11 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDoctorController;
+use App\Http\Controllers\AdminPatientController;
 
 
 /*
 |--------------------------------------------------------------------------
-| Public Website
+| PUBLIC WEBSITE
 |--------------------------------------------------------------------------
 */
 
@@ -20,7 +21,7 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Patient Appointment
+| PATIENT
 |--------------------------------------------------------------------------
 */
 
@@ -37,7 +38,29 @@ Route::post(
 
 /*
 |--------------------------------------------------------------------------
-| Admin Login
+| ABOUT HOSPITAL
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+
+/*
+|--------------------------------------------------------------------------
+| SPECIALTIES
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/specialties', function () {
+    return view('specialties');
+})->name('specialties');
+
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN LOGIN
 |--------------------------------------------------------------------------
 */
 
@@ -54,56 +77,89 @@ Route::post(
 
 /*
 |--------------------------------------------------------------------------
-| Protected Admin Panel
+| ADMIN PANEL
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('admin')->prefix('admin')->group(function () {
+Route::middleware('admin')
+    ->prefix('admin')
+    ->group(function () {
 
-    Route::get(
-        '/dashboard',
-        [AdminController::class, 'dashboard']
-    )->name('admin.dashboard');
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get(
-        '/logout',
-        [AdminController::class, 'logout']
-    )->name('admin.logout');
+        Route::get(
+            '/dashboard',
+            [AdminController::class, 'dashboard']
+        )->name('admin.dashboard');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Doctor CRUD
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Logout
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get(
-        '/doctors',
-        [AdminDoctorController::class, 'index']
-    )->name('admin.doctors.index');
+        Route::get(
+            '/logout',
+            [AdminController::class, 'logout']
+        )->name('admin.logout');
 
-    Route::get(
-        '/doctors/create',
-        [AdminDoctorController::class, 'create']
-    )->name('admin.doctors.create');
 
-    Route::post(
-        '/doctors',
-        [AdminDoctorController::class, 'store']
-    )->name('admin.doctors.store');
+        /*
+        |--------------------------------------------------------------------------
+        | Doctor CRUD
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get(
-        '/doctors/{doctor}/edit',
-        [AdminDoctorController::class, 'edit']
-    )->name('admin.doctors.edit');
+        Route::get(
+            '/doctors',
+            [AdminDoctorController::class, 'index']
+        )->name('admin.doctors.index');
 
-    Route::put(
-        '/doctors/{doctor}',
-        [AdminDoctorController::class, 'update']
-    )->name('admin.doctors.update');
+        Route::get(
+            '/doctors/create',
+            [AdminDoctorController::class, 'create']
+        )->name('admin.doctors.create');
 
-    Route::delete(
-        '/doctors/{doctor}',
-        [AdminDoctorController::class, 'destroy']
-    )->name('admin.doctors.destroy');
-});
+        Route::post(
+            '/doctors',
+            [AdminDoctorController::class, 'store']
+        )->name('admin.doctors.store');
+
+        Route::get(
+            '/doctors/{doctor}/edit',
+            [AdminDoctorController::class, 'edit']
+        )->name('admin.doctors.edit');
+
+        Route::put(
+            '/doctors/{doctor}',
+            [AdminDoctorController::class, 'update']
+        )->name('admin.doctors.update');
+
+        Route::delete(
+            '/doctors/{doctor}',
+            [AdminDoctorController::class, 'destroy']
+        )->name('admin.doctors.destroy');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Patient Records
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/patients',
+            [AdminPatientController::class, 'index']
+        )->name('admin.patients.index');
+
+        Route::delete(
+            '/patients/{patient}/cancel',
+            [AdminPatientController::class, 'cancel']
+        )->name('admin.patients.cancel');
+
+    });

@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <title>CarePoint Hospital</title>
+    <title>Sukh Hospital System</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -21,10 +21,15 @@
 
         body {
             background: #f6f8fc;
+            color: #172033;
+        }
+
+        .navbar {
+            background: white;
         }
 
         .hero {
-            min-height: 90vh;
+            min-height: 78vh;
             display: flex;
             align-items: center;
         }
@@ -32,12 +37,16 @@
         .hero-card {
             background: white;
             border-radius: 30px;
-            padding: 60px;
+            padding: 65px;
             box-shadow: 0 20px 60px rgba(0,0,0,.08);
         }
 
-        .icon {
-            font-size: 70px;
+        .feature-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 25px;
+            height: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,.05);
         }
 
     </style>
@@ -46,24 +55,46 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
 
     <div class="container">
 
-        <a class="navbar-brand fw-bold fs-4">
-            🏥 CarePoint
+        <a
+            href="{{ route('dashboard') }}"
+            class="navbar-brand fw-bold fs-4"
+        >
+            Sukh Hospital System
         </a>
 
-        <a
-            href="{{ route('admin.login') }}"
-            class="btn btn-outline-dark"
-        >
-            Admin
-        </a>
+        <div class="d-flex gap-2">
+
+            <a
+                href="{{ route('about') }}"
+                class="btn btn-light"
+            >
+                About
+            </a>
+
+            <a
+                href="{{ route('specialties') }}"
+                class="btn btn-light"
+            >
+                Specialties
+            </a>
+
+            <a
+                href="{{ route('admin.login') }}"
+                class="btn btn-outline-dark"
+            >
+                Admin
+            </a>
+
+        </div>
 
     </div>
 
 </nav>
+
 
 <section class="hero">
 
@@ -71,22 +102,25 @@
 
         <div class="hero-card text-center">
 
-            <div class="icon">
-                🏥
-            </div>
-
-            <h1 class="display-4 fw-bold mt-3">
-                Quality Healthcare,
-                <br>
-                Made Simple.
+            <h1 class="display-4 fw-bold">
+                Sukh Hospital System
             </h1>
 
-            <p class="lead text-muted mt-3 mx-auto"
-               style="max-width:650px;">
+            <p class="lead text-muted mt-3">
 
-                Book your hospital appointment in a few simple steps.
-                Our system automatically assigns an available doctor
-                for you.
+                Trusted healthcare and professional medical
+                services in Jalandhar.
+
+            </p>
+
+            <p
+                class="text-muted mx-auto"
+                style="max-width:700px;"
+            >
+
+                Book your appointment easily. Our system automatically
+                assigns an available doctor according to the current
+                appointment load.
 
             </p>
 
@@ -94,43 +128,67 @@
                 href="{{ route('patients.create') }}"
                 class="btn btn-primary btn-lg px-5 mt-4"
             >
-                🩺 Add Patient / Book Appointment
+                Add Patient / Book Appointment
             </a>
 
-            <div class="row mt-5 g-4">
+        </div>
 
-                <div class="col-md-4">
+
+        <div class="row g-4 mt-4">
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
 
                     <h5 class="fw-bold">
-                        ⚡ Fast Booking
+                        Easy Appointment
                     </h5>
 
-                    <p class="text-muted">
-                        Simple appointment process.
+                    <p class="text-muted mb-0">
+
+                        Book an appointment through a simple
+                        online patient form.
+
                     </p>
 
                 </div>
 
-                <div class="col-md-4">
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
 
                     <h5 class="fw-bold">
-                        👨‍⚕️ Smart Assignment
+                        Experienced Doctors
                     </h5>
 
-                    <p class="text-muted">
-                        Doctor automatically assigned.
+                    <p class="text-muted mb-0">
+
+                        Our hospital provides professional
+                        medical and surgical services.
+
                     </p>
 
                 </div>
 
-                <div class="col-md-4">
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="feature-card">
 
                     <h5 class="fw-bold">
-                        📧 Email Updates
+                        Patient Care
                     </h5>
 
-                    <p class="text-muted">
-                        Appointment confirmation by email.
+                    <p class="text-muted mb-0">
+
+                        Patient appointments are managed
+                        through our hospital system.
+
                     </p>
 
                 </div>

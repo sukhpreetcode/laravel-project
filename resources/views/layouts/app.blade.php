@@ -11,7 +11,7 @@
     >
 
     <title>
-        @yield('title', 'CarePoint Hospital')
+        @yield('title', 'Sukh Hospital System')
     </title>
 
     <link
@@ -28,10 +28,6 @@
 
         .navbar {
             background: white;
-        }
-
-        .card {
-            border: none;
         }
 
         .form-control,
@@ -58,7 +54,7 @@
             href="{{ route('dashboard') }}"
             class="navbar-brand fw-bold"
         >
-            🏥 CarePoint
+            Sukh Hospital System
         </a>
 
         @if(session('admin_logged_in'))
@@ -76,7 +72,7 @@
                     href="{{ route('admin.doctors.index') }}"
                     class="btn btn-sm btn-primary"
                 >
-                    Doctors
+                    Manage Doctors
                 </a>
 
             </div>

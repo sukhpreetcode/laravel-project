@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Admin Dashboard')
+
 @section('content')
 
 <div class="container py-4">
+
+
+    {{-- HEADER --}}
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -12,7 +17,7 @@
                 Admin Dashboard
             </h1>
 
-            <p class="text-muted">
+            <p class="text-muted mb-0">
                 Welcome back, {{ session('admin_name') }}
             </p>
 
@@ -21,10 +26,10 @@
         <div>
 
             <a
-                href="{{ route('admin.doctors.index') }}"
-                class="btn btn-primary"
+                href="{{ route('admin.patients.index') }}"
+                class="btn btn-outline-primary"
             >
-                Manage Doctors
+                All Patient Records
             </a>
 
             <a
@@ -38,7 +43,11 @@
 
     </div>
 
-    <div class="row g-4 mb-4">
+
+    {{-- STATISTICS --}}
+
+    <div class="row g-4 mb-5">
+
 
         <div class="col-md-3">
 
@@ -60,6 +69,7 @@
 
         </div>
 
+
         <div class="col-md-3">
 
             <div class="card border-0 shadow-sm rounded-4">
@@ -80,6 +90,7 @@
 
         </div>
 
+
         <div class="col-md-3">
 
             <div class="card border-0 shadow-sm rounded-4">
@@ -99,6 +110,7 @@
             </div>
 
         </div>
+
 
         <div class="col-md-3">
 
@@ -122,17 +134,116 @@
 
     </div>
 
+
+    {{-- DOCTORS --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+
+            <h3 class="fw-bold mb-1">
+                Doctors
+            </h3>
+
+            <p class="text-muted">
+                Current hospital doctors
+            </p>
+
+        </div>
+
+        <a
+            href="{{ route('admin.doctors.index') }}"
+            class="btn btn-primary"
+        >
+            Manage Doctors
+        </a>
+
+    </div>
+
+
+    <div class="row g-4 mb-5">
+
+        @forelse($doctors as $doctor)
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                    <div class="card-body p-4">
+
+                        <h5 class="fw-bold">
+                            Dr. {{ $doctor->name }}
+                        </h5>
+
+                        <p class="text-primary mb-2">
+                            {{ $doctor->specialization }}
+                        </p>
+
+                        <p class="text-muted mb-1">
+                            Phone: {{ $doctor->phone }}
+                        </p>
+
+                        <p class="text-muted mb-1">
+                            Email: {{ $doctor->email ?? 'Not available' }}
+                        </p>
+
+                        <p class="text-muted mb-0">
+                            Assigned Patients:
+                            <strong>
+                                {{ $doctor->patients_count }}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <div class="col-12">
+
+                <div class="alert alert-light border">
+                    No doctors available.
+                </div>
+
+            </div>
+
+        @endforelse
+
+    </div>
+
+
+    {{-- LATEST 4 PATIENTS --}}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+
+            <h3 class="fw-bold mb-1">
+                Latest Patient Records
+            </h3>
+
+            <p class="text-muted">
+                Showing the latest 4 appointments
+            </p>
+
+        </div>
+
+        <a
+            href="{{ route('admin.patients.index') }}"
+            class="btn btn-outline-primary"
+        >
+            View All Patient Records
+        </a>
+
+    </div>
+
+
     <div class="card border-0 shadow-sm rounded-4">
 
         <div class="card-body">
-
-            <div class="d-flex justify-content-between mb-3">
-
-                <h4 class="fw-bold">
-                    Patient Records
-                </h4>
-
-            </div>
 
             <div class="table-responsive">
 
@@ -159,9 +270,11 @@
 
                             <td>
 
-                                <div class="fw-semibold">
+                                <strong>
                                     {{ $patient->name }}
-                                </div>
+                                </strong>
+
+                                <br>
 
                                 <small class="text-muted">
                                     {{ $patient->email }}
@@ -181,7 +294,7 @@
 
                                 @else
 
-                                    Not assigned
+                                    Not Assigned
 
                                 @endif
 
@@ -189,9 +302,15 @@
 
                             <td>
 
-                                {{ $patient->appointment_at
-                                    ? $patient->appointment_at->format('d M Y, h:i A')
-                                    : '-' }}
+                                @if($patient->appointment_at)
+
+                                    {{ $patient->appointment_at->format('d M Y, h:i A') }}
+
+                                @else
+
+                                    -
+
+                                @endif
 
                             </td>
 

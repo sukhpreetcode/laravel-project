@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use App\Models\Doctor;
-use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -13,7 +12,7 @@ class AdminController extends Controller
         return view('admin.login');
     }
 
-    public function authenticate(Request $request)
+    public function authenticate(\Illuminate\Http\Request $request)
     {
         $request->validate([
             'username' => 'required',
@@ -24,7 +23,6 @@ class AdminController extends Controller
             $request->username === 'sukh' &&
             $request->password === 'sukhpreet'
         ) {
-
             session([
                 'admin_logged_in' => true,
                 'admin_name' => 'Sukh'
@@ -40,13 +38,29 @@ class AdminController extends Controller
 
     public function dashboard()
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Only latest 4 patient records
+        |--------------------------------------------------------------------------
+        */
+
         $patients = Patient::with('doctor')
-            ->latest()
+            ->orderBy('appointment_at', 'desc')
+            ->take(4)
             ->get();
 
-        $doctors = Doctor::withCount('patients')->get();
+        /*
+        |--------------------------------------------------------------------------
+        | All doctors for dashboard display
+        |--------------------------------------------------------------------------
+        */
+
+        $doctors = Doctor::withCount('patients')
+            ->orderBy('name')
+            ->get();
 
         $totalPatients = Patient::count();
+
         $totalDoctors = Doctor::count();
 
         $todayAppointments = Patient::whereDate(
