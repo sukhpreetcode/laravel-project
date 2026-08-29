@@ -13,7 +13,13 @@ class Patient extends Model
         'gender',
         'date_of_birth',
         'address',
-        'doctor_id'
+        'doctor_id',
+        'appointment_at',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'appointment_at' => 'datetime',
     ];
 
     public function doctor()

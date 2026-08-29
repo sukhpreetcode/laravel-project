@@ -1,8 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\PatientController;
-use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDoctorController;
+
+
+/*
+|--------------------------------------------------------------------------
+| Public Website
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('dashboard');
@@ -11,53 +20,90 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Patient Routes
+| Patient Appointment
 |--------------------------------------------------------------------------
 */
 
-Route::resource('patients', PatientController::class);
+Route::get(
+    '/add-patient',
+    [PatientController::class, 'create']
+)->name('patients.create');
+
+Route::post(
+    '/add-patient',
+    [PatientController::class, 'store']
+)->name('patients.store');
 
 
 /*
 |--------------------------------------------------------------------------
-| Doctor Routes
+| Admin Login
 |--------------------------------------------------------------------------
 */
 
-Route::get('/doctors', [DoctorController::class, 'index'])
-    ->name('doctors.index');
+Route::get(
+    '/admin/login',
+    [AdminController::class, 'login']
+)->name('admin.login');
 
-Route::get('/doctors/create', [DoctorController::class, 'create'])
-    ->name('doctors.create');
-
-Route::post('/doctors', [DoctorController::class, 'store'])
-    ->name('doctors.store');
-
-Route::get('/doctors/{doctor}', [DoctorController::class, 'show'])
-    ->name('doctors.show');
-
-Route::delete('/doctors/{doctor}', [DoctorController::class, 'destroy'])
-    ->name('doctors.destroy');
+Route::post(
+    '/admin/login',
+    [AdminController::class, 'authenticate']
+)->name('admin.authenticate');
 
 
 /*
 |--------------------------------------------------------------------------
-| Extra Pages
+| Protected Admin Panel
 |--------------------------------------------------------------------------
 */
 
-Route::view('/appointments', 'appointments')->name('appointments');
+Route::middleware('admin')->prefix('admin')->group(function () {
 
-Route::view('/departments', 'departments')->name('departments');
+    Route::get(
+        '/dashboard',
+        [AdminController::class, 'dashboard']
+    )->name('admin.dashboard');
 
-Route::view('/assignments', 'assignments')->name('assignments');
+    Route::get(
+        '/logout',
+        [AdminController::class, 'logout']
+    )->name('admin.logout');
 
-Route::view('/reports', 'reports')->name('reports');
 
-Route::view('/hospital', 'hospital')->name('hospital');
+    /*
+    |--------------------------------------------------------------------------
+    | Doctor CRUD
+    |--------------------------------------------------------------------------
+    */
 
-Route::view('/contact', 'contact')->name('contact');
+    Route::get(
+        '/doctors',
+        [AdminDoctorController::class, 'index']
+    )->name('admin.doctors.index');
 
-Route::view('/about', 'about')->name('about');
+    Route::get(
+        '/doctors/create',
+        [AdminDoctorController::class, 'create']
+    )->name('admin.doctors.create');
 
-Route::view('/settings', 'settings')->name('settings');
+    Route::post(
+        '/doctors',
+        [AdminDoctorController::class, 'store']
+    )->name('admin.doctors.store');
+
+    Route::get(
+        '/doctors/{doctor}/edit',
+        [AdminDoctorController::class, 'edit']
+    )->name('admin.doctors.edit');
+
+    Route::put(
+        '/doctors/{doctor}',
+        [AdminDoctorController::class, 'update']
+    )->name('admin.doctors.update');
+
+    Route::delete(
+        '/doctors/{doctor}',
+        [AdminDoctorController::class, 'destroy']
+    )->name('admin.doctors.destroy');
+});

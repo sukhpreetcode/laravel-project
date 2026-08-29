@@ -5,71 +5,91 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PatientController extends Controller
 {
-    public function index()
-    {
-        $patients = Patient::with('doctor')->latest()->get();
-
-        return view('patients.index', compact('patients'));
-    }
-
     public function create()
     {
-        $doctors = Doctor::all();
-
-        return view('patients.create', compact('doctors'));
+        return view('patients.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
+            'name' => 'required|string|max:100',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'gender' => 'nullable|string',
+            'date_of_birth' => 'nullable|date',
+            'address' => 'nullable|string',
+            'appointment_at' => 'required|date|after:now',
         ]);
 
-        Patient::create($request->all());
+        /*
+        |--------------------------------------------------------------------------
+        | Automatically select doctor
+        |--------------------------------------------------------------------------
+        */
 
-        return redirect()
-            ->route('patients.index')
-            ->with('success', 'Patient added successfully');
-    }
+        $doctor = Doctor::withCount([
+            'patients' => function ($query) {
+                $query->where('appointment_at', '>=', now());
+            }
+        ])
+        ->orderBy('patients_count')
+        ->first();
 
-    public function show(Patient $patient)
-    {
-        $patient->load('doctor');
+        if (!$doctor) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'appointment_at' => 'No doctor is currently available.'
+                ]);
+        }
 
-        return view('patients.show', compact('patient'));
-    }
-
-    public function edit(Patient $patient)
-    {
-        $doctors = Doctor::all();
-
-        return view('patients.edit', compact('patient', 'doctors'));
-    }
-
-    public function update(Request $request, Patient $patient)
-    {
-        $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
+        $patient = Patient::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'gender' => $request->gender,
+            'date_of_birth' => $request->date_of_birth,
+            'address' => $request->address,
+            'doctor_id' => $doctor->id,
+            'appointment_at' => $request->appointment_at,
         ]);
 
-        $patient->update($request->all());
+        /*
+        |--------------------------------------------------------------------------
+        | Send confirmation email
+        |--------------------------------------------------------------------------
+        */
 
-        return redirect()
-            ->route('patients.index')
-            ->with('success', 'Patient updated successfully');
-    }
+        if ($patient->email) {
+            Mail::raw(
+                "Hello {$patient->name},
 
-    public function destroy(Patient $patient)
-    {
-        $patient->delete();
+Your hospital appointment has been confirmed.
 
-        return redirect()
-            ->route('patients.index')
-            ->with('success', 'Patient deleted successfully');
+Doctor: {$doctor->name}
+Specialization: {$doctor->specialization}
+Date & Time: {$patient->appointment_at->format('d M Y, h:i A')}
+
+Please arrive 15 minutes before your appointment.
+
+Thank you,
+Hospital Management System",
+                function ($message) use ($patient) {
+                    $message
+                        ->to($patient->email)
+                        ->subject('Appointment Confirmation');
+                }
+            );
+        }
+
+        return view('patients.confirmation', compact(
+            'patient',
+            'doctor'
+        ));
     }
 }
