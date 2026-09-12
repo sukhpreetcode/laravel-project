@@ -24,11 +24,85 @@ class AdminDoctorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'specialization' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email',
-        ]);
+
+    'name' => 'required|string|max:100',
+
+    'email' => 'nullable|email',
+
+    'phone' => 'required|string|max:20',
+
+    'specialization' =>
+        'required|string|max:100',
+
+    'qualification' =>
+        'nullable|string|max:150',
+
+    'experience' =>
+        'nullable|string|max:100',
+
+    'specialist_body_part' =>
+        'nullable|string|max:100',
+
+    'bio' =>
+        'nullable|string',
+
+    'available_days' =>
+        'nullable|string|max:200',
+
+    'available_from' =>
+        'nullable',
+
+    'available_to' =>
+        'nullable',
+
+    'consultation_fee' =>
+        'nullable|numeric|min:0',
+
+]);
+
+
+Doctor::create([
+
+    'name' =>
+        $request->name,
+
+    'email' =>
+        $request->email,
+
+    'phone' =>
+        $request->phone,
+
+    'specialization' =>
+        $request->specialization,
+
+    'qualification' =>
+        $request->qualification,
+
+    'experience' =>
+        $request->experience,
+
+    'specialist_body_part' =>
+        $request->specialist_body_part,
+
+    'bio' =>
+        $request->bio,
+
+    'available_days' =>
+        $request->available_days,
+
+    'available_from' =>
+        $request->available_from,
+
+    'available_to' =>
+        $request->available_to,
+
+    'consultation_fee' =>
+        $request->consultation_fee,
+
+    'is_active' =>
+        $request->has('is_active'),
+
+]);
 
         Doctor::create($request->only([
             'name',

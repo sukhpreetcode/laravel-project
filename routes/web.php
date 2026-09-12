@@ -163,3 +163,15 @@ Route::middleware('admin')
         )->name('admin.patients.cancel');
 
     });
+
+    Route::view('/about', 'pages.about')
+    ->name('about');
+
+Route::view('/specialties', 'pages.specialties')
+    ->name('specialties');
+
+Route::view('/services', 'pages.services')
+    ->name('services');
+
+Route::view('/contact', 'pages.contact')
+    ->name('contact');

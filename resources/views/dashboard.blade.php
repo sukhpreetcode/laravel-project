@@ -81,6 +81,9 @@
             >
                 Specialties
             </a>
+            <a href="{{ route('services') }}" class="btn btn-light">
+    Services
+</a>
 
             <a
                 href="{{ route('admin.login') }}"

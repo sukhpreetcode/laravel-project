@@ -67,6 +67,20 @@
                 >
                     Dashboard
                 </a>
+                
+
+
+
+<a href="{{ route('contact') }}" class="btn btn-primary">
+    Contact
+</a>
+
+<a href="{{ route('patients.create') }}"
+   class="btn btn-primary">
+
+    Book Appointment
+
+</a>
 
                 <a
                     href="{{ route('admin.doctors.index') }}"
@@ -91,4 +105,4 @@
 
 </body>
 
-</html>php art
+</html>

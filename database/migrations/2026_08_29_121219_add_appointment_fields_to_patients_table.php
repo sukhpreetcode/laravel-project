@@ -8,15 +8,62 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('patients', function (Blueprint $table) {
-            $table->dateTime('appointment_at')->nullable()->after('doctor_id');
+        Schema::table('doctors', function (Blueprint $table) {
+
+            $table->string('qualification')
+                ->nullable()
+                ->after('specialization');
+
+            $table->string('experience')
+                ->nullable()
+                ->after('qualification');
+
+            $table->string('specialist_body_part')
+                ->nullable()
+                ->after('experience');
+
+            $table->text('bio')
+                ->nullable()
+                ->after('specialist_body_part');
+
+            $table->string('available_days')
+                ->nullable()
+                ->after('bio');
+
+            $table->time('available_from')
+                ->nullable()
+                ->after('available_days');
+
+            $table->time('available_to')
+                ->nullable()
+                ->after('available_from');
+
+            $table->decimal('consultation_fee', 10, 2)
+                ->nullable()
+                ->after('available_to');
+
+            $table->boolean('is_active')
+                ->default(true)
+                ->after('consultation_fee');
         });
     }
 
     public function down(): void
     {
-        Schema::table('patients', function (Blueprint $table) {
-            $table->dropColumn('appointment_at');
+        Schema::table('doctors', function (Blueprint $table) {
+
+            $table->dropColumn([
+                'qualification',
+                'experience',
+                'specialist_body_part',
+                'bio',
+                'available_days',
+                'available_from',
+                'available_to',
+                'consultation_fee',
+                'is_active'
+            ]);
+
         });
     }
 };
