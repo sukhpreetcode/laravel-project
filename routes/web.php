@@ -35,7 +35,20 @@ Route::post(
     [PatientController::class, 'store']
 )->name('patients.store');
 
+Route::get(
+    '/check-appointment',
+    [PatientController::class, 'tokenPage']
+)->name('patients.token');
 
+Route::post(
+    '/check-appointment',
+    [PatientController::class, 'checkToken']
+)->name('patients.token.check');
+
+Route::post(
+    '/cancel-appointment',
+    [PatientController::class, 'cancelByToken']
+)->name('patients.token.cancel');
 /*
 |--------------------------------------------------------------------------
 | ABOUT HOSPITAL
@@ -156,6 +169,28 @@ Route::middleware('admin')
             '/patients',
             [AdminPatientController::class, 'index']
         )->name('admin.patients.index');
+        Route::get(
+    '/patients',
+    [AdminPatientController::class, 'index']
+)->name('admin.patients.index');
+
+
+Route::get(
+    '/patients/{patient}',
+    [AdminPatientController::class, 'show']
+)->name('admin.patients.show');
+
+
+Route::post(
+    '/patients/{patient}/status',
+    [AdminPatientController::class, 'updateStatus']
+)->name('admin.patients.status');
+
+
+Route::delete(
+    '/patients/{patient}/cancel',
+    [AdminPatientController::class, 'cancel']
+)->name('admin.patients.cancel');
 
         Route::delete(
             '/patients/{patient}/cancel',
@@ -175,3 +210,4 @@ Route::view('/services', 'pages.services')
 
 Route::view('/contact', 'pages.contact')
     ->name('contact');
+

@@ -6,14 +6,27 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class PatientController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Appointment Form
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         return view('patients.create');
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Store Appointment
+    |--------------------------------------------------------------------------
+    */
 
     public function store(Request $request)
     {
@@ -55,9 +68,8 @@ class PatientController extends Controller
             'appointment_at' =>
                 'required|date|after:now',
 
-            'admin_notes' =>
-                'nullable|string',
-
+            'patient_message' =>
+                'nullable|string|max:2000',
         ]);
 
 
@@ -106,6 +118,11 @@ class PatientController extends Controller
                         now()
                     );
 
+                    $query->where(
+                        'status',
+                        '!=',
+                        'Cancelled'
+                    );
                 }
 
             ])
@@ -117,7 +134,7 @@ class PatientController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | If specialist not found, use any active doctor
+        | Fallback Doctor
         |--------------------------------------------------------------------------
         */
 
@@ -128,24 +145,28 @@ class PatientController extends Controller
                 true
             )
 
-            ->withCount([
+                ->withCount([
 
-                'patients' => function ($query) {
+                    'patients' => function ($query) {
 
-                    $query->where(
-                        'appointment_at',
-                        '>=',
-                        now()
-                    );
+                        $query->where(
+                            'appointment_at',
+                            '>=',
+                            now()
+                        );
 
-                }
+                        $query->where(
+                            'status',
+                            '!=',
+                            'Cancelled'
+                        );
+                    }
 
-            ])
+                ])
 
-            ->orderBy('patients_count')
+                ->orderBy('patients_count')
 
-            ->first();
-
+                ->first();
         }
 
 
@@ -156,20 +177,46 @@ class PatientController extends Controller
                 ->withInput()
 
                 ->withErrors([
+
                     'appointment_at' =>
                         'No doctor is currently available.'
-                ]);
 
+                ]);
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Create patient appointment
+        | Generate Unique Token
+        |--------------------------------------------------------------------------
+        */
+
+        do {
+
+            $token =
+                'SUKH-' .
+                strtoupper(
+                    Str::random(8)
+                );
+
+        } while (
+            Patient::where(
+                'appointment_token',
+                $token
+            )->exists()
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Patient
         |--------------------------------------------------------------------------
         */
 
         $patient = Patient::create([
+
+            'appointment_token' =>
+                $token,
 
             'name' =>
                 $request->name,
@@ -219,9 +266,11 @@ class PatientController extends Controller
             'status' =>
                 'Pending',
 
-            'admin_notes' =>
-                $request->admin_notes,
+            'patient_message' =>
+                $request->patient_message,
 
+            'admin_notes' =>
+                null,
         ]);
 
 
@@ -231,11 +280,16 @@ class PatientController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Mail::raw(
+        try {
 
-            "Hello {$patient->name},
+            Mail::raw(
+
+                "Hello {$patient->name},
 
 Your appointment request has been received.
+
+TOKEN NUMBER:
+{$patient->appointment_token}
 
 Appointment Type:
 {$patient->appointment_type}
@@ -258,22 +312,26 @@ Appointment:
 Status:
 Pending
 
-Our hospital team will review your appointment.
+Use your token number to check your appointment status.
 
 Thank you,
 Sukh Hospital System",
 
-            function ($message) use ($patient) {
+                function ($message) use ($patient) {
 
-                $message
-                    ->to($patient->email)
-                    ->subject(
-                        'Appointment Request Received'
-                    );
+                    $message
+                        ->to($patient->email)
+                        ->subject(
+                            'Sukh Hospital Appointment - ' .
+                            $patient->appointment_token
+                        );
+                }
+            );
 
-            }
+        } catch (\Throwable $e) {
 
-        );
+            // Email fail hone par appointment delete nahi hoga.
+        }
 
 
         /*
@@ -289,9 +347,14 @@ Sukh Hospital System",
             );
 
 
-        Mail::raw(
+        try {
 
-            "NEW HOSPITAL APPOINTMENT
+            Mail::raw(
+
+                "NEW HOSPITAL APPOINTMENT
+
+TOKEN:
+{$patient->appointment_token}
 
 Patient:
 {$patient->name}
@@ -335,23 +398,29 @@ Assigned Doctor:
 Doctor Specialization:
 {$doctor->specialization}
 
+Patient Message:
+{$patient->patient_message}
+
 Status:
 Pending
 
-Please login to the hospital admin panel
-to review this appointment.",
+Please login to the hospital admin panel.",
 
-            function ($message) use ($adminEmail) {
+                function ($message) use ($adminEmail) {
 
-                $message
-                    ->to($adminEmail)
-                    ->subject(
-                        'NEW HOSPITAL APPOINTMENT'
-                    );
+                    $message
+                        ->to($adminEmail)
+                        ->subject(
+                            'NEW APPOINTMENT - ' .
+                            $patient->appointment_token
+                        );
+                }
+            );
 
-            }
+        } catch (\Throwable $e) {
 
-        );
+            // Email fail hone par appointment delete nahi hoga.
+        }
 
 
         return view(
@@ -360,6 +429,141 @@ to review this appointment.",
                 'patient',
                 'doctor'
             )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Patient Token Search Page
+    |--------------------------------------------------------------------------
+    */
+
+    public function tokenPage()
+    {
+        return view('patients.token');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find Appointment By Token
+    |--------------------------------------------------------------------------
+    */
+
+    public function checkToken(Request $request)
+    {
+        $request->validate([
+
+            'appointment_token' =>
+                'required|string|max:30',
+
+        ]);
+
+
+        $patient = Patient::with('doctor')
+
+            ->where(
+                'appointment_token',
+                strtoupper(
+                    trim(
+                        $request->appointment_token
+                    )
+                )
+            )
+
+            ->first();
+
+
+        if (!$patient) {
+
+            return back()
+
+                ->withInput()
+
+                ->withErrors([
+
+                    'appointment_token' =>
+                        'Appointment not found. Please check your token number.'
+
+                ]);
+        }
+
+
+        return view(
+            'patients.status',
+            compact('patient')
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Patient Cancel Appointment
+    |--------------------------------------------------------------------------
+    */
+
+    public function cancelByToken(Request $request)
+    {
+        $request->validate([
+
+            'appointment_token' =>
+                'required|string|max:30',
+
+        ]);
+
+
+        $patient = Patient::where(
+
+            'appointment_token',
+
+            strtoupper(
+                trim(
+                    $request->appointment_token
+                )
+            )
+
+        )->first();
+
+
+        if (!$patient) {
+
+            return back()->withErrors([
+
+                'appointment_token' =>
+                    'Appointment not found.'
+
+            ]);
+        }
+
+
+        if (
+            in_array(
+                $patient->status,
+                [
+                    'Cancelled',
+                    'Completed'
+                ]
+            )
+        ) {
+
+            return back()->withErrors([
+
+                'appointment_token' =>
+                    'This appointment cannot be cancelled now.'
+
+            ]);
+        }
+
+
+        $patient->status = 'Cancelled';
+
+        $patient->save();
+
+
+        return back()->with(
+            'success',
+            'Appointment cancelled successfully.'
         );
     }
 }

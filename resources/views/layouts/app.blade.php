@@ -57,30 +57,38 @@
             Sukh Hospital System
         </a>
 
-        @if(session('admin_logged_in'))
 
-            <div>
+        <div class="d-flex gap-2 flex-wrap">
+
+            
+
+            
+
+            
+
+            <a
+                href="{{ route('patients.create') }}"
+                class="btn btn-sm btn-primary"
+            >
+                Book Appointment
+            </a>
+
+            <a
+                href="{{ route('patients.token') }}"
+                class="btn btn-sm btn-success"
+            >
+                Check Appointment
+            </a>
+
+
+            @if(session('admin_logged_in'))
 
                 <a
                     href="{{ route('admin.dashboard') }}"
-                    class="btn btn-sm btn-outline-primary"
+                    class="btn btn-sm btn-dark"
                 >
-                    Dashboard
+                    Admin Dashboard
                 </a>
-                
-
-
-
-<a href="{{ route('contact') }}" class="btn btn-primary">
-    Contact
-</a>
-
-<a href="{{ route('patients.create') }}"
-   class="btn btn-primary">
-
-    Book Appointment
-
-</a>
 
                 <a
                     href="{{ route('admin.doctors.index') }}"
@@ -89,9 +97,9 @@
                     Manage Doctors
                 </a>
 
-            </div>
+            @endif
 
-        @endif
+        </div>
 
     </div>
 

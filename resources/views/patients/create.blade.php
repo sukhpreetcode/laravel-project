@@ -678,6 +678,20 @@
 
 </div>
 
+<div class="mb-4">
+
+    <label class="form-label fw-semibold">
+        Message for Hospital / Admin
+    </label>
+
+    <textarea
+        name="patient_message"
+        class="form-control"
+        rows="4"
+        placeholder="Write any additional information you want to tell the hospital..."
+    >{{ old('patient_message') }}</textarea>
+
+</div>
 </div>
 
 

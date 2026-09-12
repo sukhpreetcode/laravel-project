@@ -8,6 +8,8 @@ class Patient extends Model
 {
     protected $fillable = [
 
+        'appointment_token',
+
         'name',
         'email',
         'phone',
@@ -29,7 +31,9 @@ class Patient extends Model
         'preferred_doctor',
 
         'status',
+
         'admin_notes',
+        'patient_message',
     ];
 
     protected $casts = [

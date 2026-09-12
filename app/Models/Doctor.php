@@ -27,12 +27,8 @@ class Doctor extends Model
     ];
 
     protected $casts = [
-
-        'available_from' => 'datetime:H:i',
-        'available_to' => 'datetime:H:i',
-
-        'is_active' => 'boolean',
-    ];
+    'is_active' => 'boolean',
+];
 
     public function patients()
     {
